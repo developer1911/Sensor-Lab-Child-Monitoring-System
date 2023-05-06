@@ -1,0 +1,74 @@
+
+#include <DHT.h>
+#include <LiquidCrystal.h>
+#include <SoftwareSerial.h>
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+#define DHTPIN 7 // What digital pin we're connected to
+// Uncomment whatever type you're using!
+#define DHTTYPE DHT11 // DHT 11
+DHT dht(DHTPIN, DHTTYPE);
+float humidity = 0;
+float temperature = 0;
+float moisture = 0;
+
+float moistureValue(){
+  float value = analogRead(A0);
+  float moisture=(100-((value/1023.00)*100));
+  return moisture;
+}
+
+void displayLcd(){
+  lcd.clear();
+  lcd.setCursor(3, 0);
+  lcd.print("Moisture %");
+  lcd.setCursor(5, 1);
+  lcd.print(moisture);
+  delay(3000);
+  lcd.clear();
+  lcd.setCursor(1, 0);
+  lcd.print("Temperature °C");
+  lcd.setCursor(5, 1);
+  lcd.print(temperature);
+  delay(3000);
+  lcd.clear();
+  lcd.setCursor(3, 0);
+  lcd.print("Humidity %");
+  lcd.setCursor(5, 1);
+  lcd.print(humidity);
+  delay(3000);
+}
+
+void setup()
+{
+// Debug console
+Serial.begin(115200);
+Serial.println(F("DHT11 testing"));
+lcd.begin(16, 2);
+lcd.setCursor(5,0);
+lcd.print("WELCOME");
+pinMode(A0, INPUT);
+dht.begin();
+delay(10);
+}
+void loop()
+{
+// delay(1000);
+  humidity = dht.readHumidity();
+  temperature = dht.readTemperature(); // or dht.readTemperature(true) for
+  moisture = moistureValue();
+  Serial.print(F("Humidit: "));
+  Serial.print(humidity);
+  Serial.print(F("tempreture: "));
+  Serial.print(temperature);
+  Serial.print(F("Moisture: "));
+  Serial.print(moisture);
+  displayLcd();
+
+  if(temperature>=20.30){
+  Serial.print(F("buzz"));
+    digitalWrite(10, HIGH);
+  }
+  else{
+    digitalWrite(10, LOW);
+  }
+}
